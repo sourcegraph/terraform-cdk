@@ -345,6 +345,7 @@ export class CdktfStack {
       this.updateState({ type: "planning", stackName: this.stack.name });
       const terraform = await this.initalizeTerraform({ isSpeculative: false });
 
+      logger.info(`[${this.stack.name}]: running terraform plan`);
       const plan = await terraform.plan(
         false,
         refreshOnly,
@@ -363,6 +364,7 @@ export class CdktfStack {
 
       this.updateState({ type: "deploying", stackName: this.stack.name });
       if (plan.needsApply) {
+        logger.info(`[${this.stack.name}]: running terraform apply`);
         await terraform.deploy(
           plan.planFile,
           refreshOnly,
@@ -390,6 +392,7 @@ export class CdktfStack {
       this.updateState({ type: "planning", stackName: this.stack.name });
       const terraform = await this.initalizeTerraform({ isSpeculative: false });
 
+      logger.info(`[${this.stack.name}]: running terraform plan for destroy`);
       const plan = await terraform.plan(true);
       this.updateState({ type: "planned", stackName: this.stack.name, plan });
 
@@ -402,6 +405,7 @@ export class CdktfStack {
       }
 
       this.updateState({ type: "destroying", stackName: this.stack.name });
+      logger.info(`[${this.stack.name}]: running terraform apply on destroy plan`);
       await terraform.destroy(terraformParallelism);
 
       this.updateState({

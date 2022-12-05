@@ -378,10 +378,12 @@ export class TerraformCloud implements Terraform {
     ];
 
     while (pendingStates.includes(result.attributes.status)) {
+      logger.info(`[plan][${this.stack.name}] current status: ${result.attributes.status}, is_confirmable: ${result}`);
       result = await this.update(this.client, result.id, "plan");
       await wait(1000);
     }
 
+    logger.info(`[plan][${this.stack.name}] final status: ${result.attributes.status}`);
     sendLog(`Speculative Terraform Cloud run done`);
     if (result.attributes.status === "errored") {
       throw new Error(`Error planning the run, please take a look at ${url}`);
@@ -485,10 +487,12 @@ export class TerraformCloud implements Terraform {
     let result = await this.client.Runs.show(runId);
 
     while (deployingStates.includes(result.attributes.status)) {
+      logger.info(`[deploy][${this.stack.name}] current status: ${result.attributes.status}`);
       result = await this.update(this.client, runId, "deploy");
       await wait(1000);
     }
 
+    logger.info(`[deploy][${this.stack.name}] final status: ${result.attributes.status}`);
     switch (result.attributes.status) {
       case "applied":
         break;
