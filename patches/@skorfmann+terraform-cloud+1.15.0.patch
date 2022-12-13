@@ -1,0 +1,17 @@
+diff --git a/node_modules/@skorfmann/terraform-cloud/dist-types/types/Run.d.ts b/node_modules/@skorfmann/terraform-cloud/dist-types/types/Run.d.ts
+index 82191ea..dd65522 100644
+--- a/node_modules/@skorfmann/terraform-cloud/dist-types/types/Run.d.ts
++++ b/node_modules/@skorfmann/terraform-cloud/dist-types/types/Run.d.ts
+@@ -47,4 +47,12 @@ export interface RunAttributes {
+     source: string;
+     status: 'pending' | 'plan_queued' | 'planning' | 'planned' | 'cost_estimating' | 'cost_estimated' | 'policy_checking' | 'policy_override' | 'policy_soft_failed' | 'policy_checked' | 'confirmed' | 'planned_and_finished' | 'apply_queued' | 'applying' | 'applied' | 'discarded' | 'errored' | 'canceled' | 'force_canceled';
+     terraformVersion: string;
++    actions: RunAttributesActions;
++}
++
++export interface RunAttributesActions {
++    isCancelable: boolean;
++    isConfirmable: boolean;
++    isDiscardable: boolean;
++    isForceCancelable: boolean;
+ }

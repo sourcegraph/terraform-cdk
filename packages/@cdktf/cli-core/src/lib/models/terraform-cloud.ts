@@ -368,6 +368,7 @@ export class TerraformCloud implements Terraform {
       "queuing",
       "plan_queued",
       "planning",
+      "planned",
       "cost_estimating",
       "cost_estimated",
       "policy_checking",
@@ -377,13 +378,23 @@ export class TerraformCloud implements Terraform {
       "post_plan_completed",
     ];
 
+    // one of these is the final state for a non-auto apply plan
+    // planned - free plan
+    // post_plan_completed - paid plan and sentinel/opa policy is enforced
+    const finalPlanningStates = ["planned", "post_plan_completed"]
+
     while (pendingStates.includes(result.attributes.status)) {
-      logger.info(`[plan][${this.stack.name}] current status: ${result.attributes.status}, is_confirmable: ${result}`);
+      if (!result.attributes.autoApply) {
+        if (finalPlanningStates.includes(result.attributes.status) && result.attributes.actions.isConfirmable) {
+          break;
+        }
+      }
+      logger.info(`[plan][${this.stack.name}] current status: ${result.attributes.status}, is_confirmable: ${result.attributes.actions.isConfirmable}`);
       result = await this.update(this.client, result.id, "plan");
       await wait(1000);
     }
 
-    logger.info(`[plan][${this.stack.name}] final status: ${result.attributes.status}`);
+    logger.info(`[plan][${this.stack.name}] final status: ${result.attributes.status}, is_confirmable: ${result.attributes.actions.isConfirmable}`);
     sendLog(`Speculative Terraform Cloud run done`);
     if (result.attributes.status === "errored") {
       throw new Error(`Error planning the run, please take a look at ${url}`);
